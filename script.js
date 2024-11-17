@@ -30,9 +30,13 @@ list.querySelectorAll('p').forEach(child => {
 
 // highlight marker and show details when marker is clicked
 for (var marker of markers) {
-    marker.on('click', (e) => e.target.setIcon(redIcon));
+    marker.on('click', (e => {
+        unHighlightMarkers();
+        e.target.setIcon(redIcon);
+    } ));
     marker.bindPopup('<b>Location</b><br>Type:');
 }
+
 
 // events
 map.on('moveend', (e) => {
@@ -50,7 +54,12 @@ map.on('moveend', (e) => {
         }
     }
 });
+
+
 function highlightMarker(e) {
+    // unhighlight all markers
+    unHighlightMarkers();
+
     // highlight marker and show details when list item is clicked
     for (var marker of markers) {
         if (marker.getLatLng().toString() == e.target.innerHTML) {
