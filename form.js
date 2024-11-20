@@ -1,3 +1,26 @@
+/* class emergency_report{
+    constructor(fname,lname,telnum,emtype,addr,long,lat,empic,comment){
+        this.fname = fname;
+        this.lname = lname;
+        this.telnum = telnum;
+        this.emtype = emtype;
+        this.addr = addr;
+        this.long = long;
+        this.lat = lat;
+        this.empic = empic;
+        this.comment = comment;
+    }
+} */
+
+class emergency_report{
+    constructor(){
+        const time = new Date()
+        this.date_time = time.toUTCString();
+        this.staus = "OPEN";
+    }
+}
+
+
 function init(){
     let MyForm = document.createElement("form");
     MyForm.innerHTML = `
@@ -20,9 +43,27 @@ function init(){
     <input type="url" id="empic" name="empic"><br><br>
     <label for="comment">Comment: </label>
     <input type="text" id="comment" name="comment"><br><br>
+    <button type="submit"> Submit </button>
     </fieldset>
-                        `
+    `   
     document.body.appendChild(MyForm);
-    
-
+    const form = document.querySelector('form');
+    form.addEventListener('submit', (e) =>{
+        e.preventDefault();
+        const fd = new FormData(form);
+        const obj = Object.fromEntries(fd);
+        const new_rep = new emergency_report;
+        Object.assign(new_rep,obj);
+        console.log(new_rep);
+        const json = JSON.stringify(new_rep);
+        localStorage.setItem('form',json);
+        console.log(json)
+    })
 }
+/* 
+
+function createReport(MyForm){
+    console.log("In createReport");
+    let fname = MyForm.fname.value;
+    console.log(fname);
+} */
