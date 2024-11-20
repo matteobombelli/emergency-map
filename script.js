@@ -21,12 +21,26 @@ var redIcon = L.icon({
 
 // list
 var list = document.getElementById('list');
+var i = 0;
 for (var marker of markers) {
-    list.innerHTML += `<p>${marker.getLatLng().toString()}</p>`;
+    list.innerHTML += 
+                    `<tr data-pos="${i}"> 
+                        <td>${marker.getLatLng().toString()}</td>
+                        <td>Medical</td>
+                        <td>Nov 19th</td>
+                        <td>RESOLVED</td>
+                        <td>MORE INFO</td>
+                        <td><button type="button" onClick="removeReport(this)">Click</button></td>
+                    </tr>`;
+    i++;
 }
-list.querySelectorAll('p').forEach(child => {
+list.querySelectorAll('tr').forEach(child => {
     child.addEventListener('click', highlightMarker);
 });
+
+function removeReport(button) {
+    // markers.splice(button.parentNode.parentNode.dataset.pos, 1);
+}
 
 // highlight marker and show details when marker is clicked
 for (var marker of markers) {
@@ -48,13 +62,12 @@ map.on('moveend', (e) => {
         if (lat > bounds._northEast.lat || lat < bounds._southWest.lat || 
             lng > bounds._northEast.lng || lng < bounds._southWest.lng) 
         {
-            list.querySelector(`p:nth-child(${i + 1})`).style.display = 'none';
+            list.querySelector(`tbody:nth-child(${i + 2})`).style.display = 'none';
         } else {
-            list.querySelector(`p:nth-child(${i + 1})`).style.display = 'block';
+            list.querySelector(`tbody:nth-child(${i + 2})`).style.display = '';
         }
     }
 });
-
 
 function highlightMarker(e) {
     // unhighlight all markers
