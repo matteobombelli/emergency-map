@@ -24,10 +24,10 @@ function initializeReport() {
         <input type="text" id="emtype" name="emtype" required><br><br>
         <label for="addr">Address: </label>
         <input type="text" id="addr" name="addr" required><br><br>
-        <label for="longitute">Longitute (optional): </label>
-        <input type="number" step="0.000001" id="longitute" name="longitute"><br><br>
         <label for="latitude">Latitude (optional): </label>
         <input type="number" step="0.000001" id="latitude" name="latitude"><br><br>
+        <label for="longitude">Longitude (optional): </label>
+        <input type="number" step="0.000001" id="longitude" name="longitude"><br><br>
         <label for="empic">Picture of Emergency: </label>
         <input type="url" id="empic" name="empic"><br><br>
         <label for="comment">Comment: </label>
@@ -54,7 +54,12 @@ function initializeReport() {
 
         // Retrieve array of reports, if non-existent initialize new array
         const storedData = localStorage.getItem('reports');
-        const reports = storedData ? JSON.parse(storedData) : [];
+        let reports = storedData ? JSON.parse(storedData) : [];
+        
+        // Check for null
+        if (reports == null) {
+            reports = [];
+        }
     
         // Append the object to the array
         reports.push(new_rep);

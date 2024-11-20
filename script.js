@@ -3,6 +3,15 @@ var map; // Map HTML element
 var report_list; // Report list HTML element
 var markers = []; // Markers array
 
+var marker_selected = L.icon({ // Selected marker appearance
+    iconUrl: 'images/red-marker.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    shadowSize: [41, 41]
+});
+
 function initializeHome() {
     // Dynamically initialize map
     let map_container = document.createElement('div');
@@ -42,7 +51,7 @@ function initializeHome() {
         // Append to report list
         report_list.innerHTML += `
             <tr data-pos="${i}"> 
-                <td>${report.latitude && report.longitute ? `(${report.latitude}, ${report.longitute})` : 'N/A'}</td>
+                <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
                 <td>${report.emtype}</td>
                 <td>${new Date(report.date_time).toDateString()}</td>
                 <td>${report.staus}</td>
@@ -53,8 +62,8 @@ function initializeHome() {
         i++;
 
         // Append to markers array
-        if (report.latitude && report.longitute) {
-            let marker = L.marker([report.longitute, report.latitude]).addTo(map);
+        if (report.latitude && report.longitude) {
+            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
             markers.push(marker);
 
             // Add click event for selecting marker
@@ -67,21 +76,11 @@ function initializeHome() {
 
     // Add event listeners for selecting rows in report list
     report_list.querySelectorAll('tr').forEach(child => {
-        child.addEventListener('click', selectMarker);
+        child.addEventListener('click', selectListMarker);
     });
 
     // Add event to only list reports that have markers visible on map
     map.on('moveend', setVisibleMarkers);
-
-    // Set selected marker appearance
-    var marker_selected = L.icon({
-        iconUrl: 'images/red-marker.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
-    });
 
     // Add event listener to each marker to update when selected
     for (var marker of markers) {
@@ -100,18 +99,33 @@ function initializeHome() {
 }
 
 
-function selectMarker(e) {
+function selectListMarker(e) {
     // unhighlight all markers
     unSelectMarkers();
 
+        // Get the parent row (`tr`) of the clicked element
+        const row = e.target.closest('tr');
+
+        // Check if the row exists and get its first cell (`td`)
+        const target = row ? row.cells[0].textContent.trim() : null;
+    
+        if (!target) {
+            console.error("Row or first cell not found!");
+            return;
+        }
+
+        console.log(target);
     // highlight marker and show details when list item is clicked
     for (var marker of markers) {
-        if (marker.getLatLng().toString() == e.target.innerHTML) {
+        const coordinates_string = `(${marker.getLatLng().lat}, ${marker.getLatLng().lng})`;
+        console.log(coordinates_string);
+        
+        if (coordinates_string == target) {
             marker.setIcon(marker_selected);
             marker.openPopup();
             break;
         }
-    }
+    } 
 }
 
 
@@ -122,18 +136,18 @@ function unSelectMarkers() {
     }
 }
 
+
 function setVisibleMarkers() {
     // update list to show reports whose markers are in the map
+    
     let bounds = map.getBounds();
     for (var i = 0; i < markers.length; i++) {
         let lat = markers[i].getLatLng().lat;
         let lng = markers[i].getLatLng().lng;
-        if (lat > bounds._northEast.lat || lat < bounds._southWest.lat || 
-            lng > bounds._northEast.lng || lng < bounds._southWest.lng) 
-        {
-            report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = 'none';
-        } else {
-            report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = '';
-        }
+
+        let in_bounds = (lat < bounds._northEast.lat && lat > bounds._southWest.lat && 
+        lng < bounds._northEast.lng && lng > bounds._southWest.lng);
+
+        report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = in_bounds ? '' : 'none';
     }
 }
