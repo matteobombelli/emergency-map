@@ -1,3 +1,23 @@
 #map { 
     height: 500px; 
 }
+
+table, th, td {
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+tbody:nth-child(even) {
+    background-color: rgb(231, 231, 231);
+
+}
+
+th {
+    background-color: rgb(214, 79, 79);
+    color: white;
+    text-align: left;
+}
+
+td {
+    padding-right: 20px;
+}
