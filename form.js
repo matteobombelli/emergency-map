@@ -1,19 +1,5 @@
-/* class emergency_report{
-    constructor(fname,lname,telnum,emtype,addr,long,lat,empic,comment){
-        this.fname = fname;
-        this.lname = lname;
-        this.telnum = telnum;
-        this.emtype = emtype;
-        this.addr = addr;
-        this.long = long;
-        this.lat = lat;
-        this.empic = empic;
-        this.comment = comment;
-    }
-} */
-
 class emergency_report{
-    constructor(){
+    constructor() {
         const time = new Date()
         this.date_time = time.toUTCString();
         this.staus = "OPEN";
@@ -21,9 +7,11 @@ class emergency_report{
 }
 
 
-function init(){
-    let MyForm = document.createElement("form");
-    MyForm.innerHTML = `
+function initialize() {
+
+    // Dynamically initialize form
+    let report_form = document.createElement('form');
+    report_form.innerHTML = `
     <fieldset>
     <label for="fname">First Name: </label>
     <input type="text" id="fname" name="fname" required><br><br>
@@ -45,25 +33,36 @@ function init(){
     <input type="text" id="comment" name="comment"><br><br>
     <button type="submit"> Submit </button>
     </fieldset>
-    `   
-    document.body.appendChild(MyForm);
-    const form = document.querySelector('form');
-    form.addEventListener('submit', (e) =>{
-        e.preventDefault();
-        const fd = new FormData(form);
-        const obj = Object.fromEntries(fd);
-        const new_rep = new emergency_report;
-        Object.assign(new_rep,obj);
-        console.log(new_rep);
-        const json = JSON.stringify(new_rep);
-        localStorage.setItem('form',json);
-        console.log(json)
-    })
-}
-/* 
+    `
 
-function createReport(MyForm){
-    console.log("In createReport");
-    let fname = MyForm.fname.value;
-    console.log(fname);
-} */
+    // Add form to document
+    document.body.appendChild(report_form);
+
+    // Listen for submit
+    report_form.addEventListener('submit', (e) => {
+
+        // Prevent the default form submission behavior
+        e.preventDefault(); 
+    
+        // Create a new emergency report object
+        const fd = new FormData(report_form);
+        const obj = Object.fromEntries(fd);
+        const new_rep = new emergency_report();
+        Object.assign(new_rep, obj);
+
+        // Retrieve array of reports, if non-existent initialize new array
+        const storedData = localStorage.getItem('reports');
+        const reports = storedData ? JSON.parse(storedData) : [];
+    
+        // Append the object to the array
+        reports.push(new_rep);
+
+        // Save new array
+        localStorage.setItem('reports', JSON.stringify(reports));
+        
+        // Clear the form
+        console.log(localStorage.getItem('reports'))
+        report_form.reset();
+    });
+    
+}
