@@ -1,11 +1,11 @@
 class emergency_report{
     constructor() {
         const time = new Date()
+        this.id = time;
         this.date_time = time.toUTCString();
         this.staus = "OPEN";
     }
 }
-
 
 function initializeReport() {
     // Add top nav bar
