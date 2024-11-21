@@ -205,5 +205,137 @@ function hideDetails() {
 }
 
 function editDetails(i) {
-    // TODO
+    let storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+
+    // Get the selected report
+    let report = reports[i];
+
+    details.innerHTML = `
+        <h3>Report Details</h3>
+        <label for="fname">First Name: </label>
+        <input type="text" id="fname" name="fname" required value="${report.fname}"><br><br>
+        <label for="lname">Last Name: </label>
+        <input type="text" id="lname" name="lname" required value="${report.lname}"><br><br>
+        <label for="telnum">Telephone: </label>        
+        <input type="text" id="telnum" name="telnum" required value="${report.telnum}"><br><br>
+        <label for="emtype">Emergency Type: </label>       
+        <input type="text" id="emtype" name="emtype" required value="${report.emtype}"><br><br>
+        <label for="addr">Address: </label>
+        <input type="text" id="addr" name="addr" required value="${report.addr}"><br><br>
+        <label for="latitude">Latitude: </label>
+        <input type="number" step="0.000001" id="latitude" name="latitude" value="${report.latitude}"><br><br>
+        <label for="longitude">Longitude: </label>
+        <input type="number" step="0.000001" id="longitude" name="longitude" value="${report.longitude}"><br><br>
+        <label for="empic">Picture of Emergency: </label>
+        <input type="url" id="empic" name="empic" value="${report.empic}"><br><br>
+        <label for="comment">Comment: </label>
+        <input type="text" id="comment" name="comment" value="${report.comment}"><br><br>
+        <button onclick="saveDetails(${i})">Save</button>
+        <button onclick="showDetails(${i})">Close</button>
+        `;
+}
+
+function saveDetails(i){
+    let storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+
+    // Get the selected report
+    let report = reports[i];
+
+    report.fname = document.getElementById('fname').value;
+    report.lname = document.getElementById('lname').value;
+    report.telnum = document.getElementById('telnum').value;
+    report.emtype = document.getElementById('emtype').value;
+    report.addr = document.getElementById('addr').value;
+    report.latitude = document.getElementById('latitude').value;
+    report.longitude = document.getElementById('longitude').value;
+    report.empic = document.getElementById('empic').value;
+    report.comment = document.getElementById('comment').value;
+
+    // Save the updated report
+    localStorage.setItem('reports', JSON.stringify(reports));
+
+    // Update the details
+    showDetails(i);
+}
+
+//this function is optional pop up window for editing details
+function showPopup(i){
+    // // Check if the popup already exists and remove it
+    // const existingPopup = document.getElementById('dynamic-popup');
+    // if (existingPopup) {
+    //     existingPopup.remove();
+    // }
+
+    // // Create the overlay
+    // const overlay = document.createElement('div');
+    // overlay.id = 'dynamic-overlay';
+    
+
+    // // Create the popup container
+    // const popup = document.createElement('div');
+    // popup.id = 'dynamic-popup';
+
+    // // Add content to the popup
+    // const title = document.createElement('h2');
+    // title.textContent = `Edit report details`;
+    // popup.appendChild(title);
+
+    // let storedData = localStorage.getItem('reports');
+    // let reports = storedData ? JSON.parse(storedData) : [];
+
+    // // Get the selected report
+    // let report = reports[i];
+
+    // const description = document.createElement('div');
+    // description.innerHTML = `
+    //     <label for="fname">First Name: </label>
+    //     <input type="text" id="fname" name="fname" required value="${report.fname}"><br><br>
+    //     <label for="lname">Last Name: </label>
+    //     <input type="text" id="lname" name="lname" required value="${report.lname}"><br><br>
+    //     <label for="telnum">Telephone: </label>        
+    //     <input type="text" id="telnum" name="telnum" required value="${report.telnum}"><br><br>
+    //     <label for="emtype">Emergency Type: </label>       
+    //     <input type="text" id="emtype" name="emtype" required value="${report.emtype}"><br><br>
+    //     <label for="addr">Address: </label>
+    //     <input type="text" id="addr" name="addr" required value="${report.addr}"><br><br>
+    //     <label for="latitude">Latitude: </label>
+    //     <input type="number" step="0.000001" id="latitude" name="latitude" value="${report.latitude}"><br><br>
+    //     <label for="longitude">Longitude: </label>
+    //     <input type="number" step="0.000001" id="longitude" name="longitude" value="${report.longitude}"><br><br>
+    //     <label for="empic">Picture of Emergency: </label>
+    //     <input type="url" id="empic" name="empic" value="${report.empic}"><br><br>
+    //     <label for="comment">Comment: </label>
+    //     <input type="text" id="comment" name="comment" value="${report.comment}"><br><br>
+    //     `;
+    // popup.appendChild(description);
+
+    // // Add a close button
+    // const closeButton = document.createElement('button');
+    // closeButton.id = 'popup-button';
+    // closeButton.textContent = 'Close';
+
+    // const saveButton = document.createElement('button');
+    // saveButton.id = 'popup-button';
+    // saveButton.textContent = 'Save';
+    
+
+    // closeButton.addEventListener('click', () => {
+    //     overlay.remove();
+    //     popup.remove();
+    // });
+
+    // //TODO
+    // saveButton.addEventListener('click', () => {
+    //     overlay.remove();
+    //     popup.remove();
+    // });
+
+    // popup.appendChild(closeButton);
+    // popup.appendChild(saveButton);
+
+    // // Append overlay and popup to the body
+    // document.body.appendChild(overlay);
+    // document.body.appendChild(popup);
 }
