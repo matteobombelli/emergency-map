@@ -75,12 +75,12 @@ function initializeHome() {
         if (report.latitude && report.longitude) {
             let marker = L.marker([report.latitude, report.longitude]).addTo(map);
             markers.push(marker);
+            let popupHTML = `<b>${report.addr}</b><br>
+                Type: ${report.emtype}<br>
+                `;
+            marker.bindPopup(popupHTML);
 
-            // Add click event for selecting marker
-            marker.on('click', (e) => {
-                unSelectMarkers();
-                marker.setIcon(marker_selected);
-            });
+            
         }
     }
 
@@ -94,11 +94,14 @@ function initializeHome() {
 
     // Add event listener to each marker to update when selected
     for (var marker of markers) {
-    marker.on('click', (e => {
-        unSelectMarkers();
-        e.target.setIcon(marker_selected);
-    } ));
-    marker.bindPopup('<b>Location</b><br>Type:');
+        
+        marker.on('click', (e => {
+            let index = markers.indexOf(e.target);
+            unSelectMarkers();
+            e.target.setIcon(marker_selected);
+            e.target.openPopup();
+            showDetails(index);
+        } ));    
     }
 
     // Add event listener to deselect all markers when map is clicked

@@ -36,7 +36,7 @@ function initializeReport() {
         <label for="longitude">Longitude (optional): </label>
         <input type="number" step="0.000001" id="longitude" name="longitude"><br><br>
         <label for="empic">Picture of Emergency: </label>
-        <input type="file" id="empic" name="empic"><br><br>
+        <input type="url" id="empic" name="empic"><br><br>
         <label for="comment">Comment: </label>
         <input type="text" id="comment" name="comment"><br><br>
         <button type="submit"> Submit </button>
