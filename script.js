@@ -14,6 +14,15 @@ var marker_selected = L.icon({ // Selected marker appearance
 });
 
 function initializeHome() {
+    // Add top nav bar
+    const topnav = document.createElement("div");
+    topnav.className = "topnav";
+    topnav.innerHTML = `
+        <a class="active" href="index.html">Home</a>
+        <a href="report.html">Create Report</a>
+        `
+    document.body.appendChild(topnav);
+    
     // Dynamically initialize map
     let map_container = document.createElement('div');
     map_container.id = 'map';

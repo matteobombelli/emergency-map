@@ -8,7 +8,14 @@ class emergency_report{
 
 
 function initializeReport() {
-
+    // Add top nav bar
+    const topnav = document.createElement("div");
+    topnav.className = "topnav";
+    topnav.innerHTML = `
+        <a  href="index.html">Home</a>
+        <a class = "active" href="report.html">Create Report</a>
+        `
+    document.body.appendChild(topnav);
     // Dynamically initialize form
     let report_form = document.createElement('form');
     report_form.className = 'report';
