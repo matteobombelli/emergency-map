@@ -126,9 +126,12 @@ function selectListMarker(e) {
 
     // highlight marker when list item is clicked
     for (var marker of markers) {
-        const coordinates_string = `(${marker.getLatLng().lat}, ${marker.getLatLng().lng})`;
-        
-        if (coordinates_string == target) {
+        const coordinates_lat = marker.getLatLng().lat;
+        const coordinates_lng = marker.getLatLng().lng;
+        const target_lat = target.split(',')[0].slice(1);
+        const target_lng = target.split(',')[1].slice(0, -1);
+
+        if (coordinates_lat == target_lat && coordinates_lng == target_lng) {
             marker.setIcon(marker_selected);
             marker.openPopup();
             break;
