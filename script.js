@@ -105,8 +105,9 @@ function initializeHome() {
     }
 
     // Add event listener to deselect all markers when map is clicked
+    
     map.on('click', unSelectMarkers);
-
+    map.on('click', hideDetails);
     // Update visible markers on load
     setVisibleMarkers();
 }
