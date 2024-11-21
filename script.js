@@ -53,36 +53,7 @@ function initializeHome() {
     let storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
-    // Iterate through reports
-    // Populate report list
-    // Populate markers array
-    let i = 0;
-    for (var report of reports) {
-        // Append to report list
-        report_list.innerHTML += `
-            <tr data-pos="${i}"> 
-                <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
-                <td>${report.emtype}</td>
-                <td>${new Date(report.date_time).toDateString()}</td>
-                <td>${report.staus}</td>
-                <td><a href="#" onclick="showDetails(${i})">MORE INFO<a></td>
-                <td><button type="button" onClick="removeReport(${i})">Click</button></td>
-            </tr>
-            `;
-        i++;
-
-        // Append to markers array
-        if (report.latitude && report.longitude) {
-            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
-            markers.push(marker);
-
-            // Add click event for selecting marker
-            marker.on('click', (e) => {
-                unSelectMarkers();
-                marker.setIcon(marker_selected);
-            });
-        }
-    }
+    pupolateListAndMarkers(reports);
 
     // Add event listeners for selecting rows in report list
     report_list.querySelectorAll('tr').forEach(child => {
@@ -199,4 +170,91 @@ function hideDetails() {
 
 function editDetails(i) {
     // TODO
+}
+
+// Iterate through reports
+// Populate report list
+// Populate markers array
+function pupolateListAndMarkers(reports) {
+    let i = 0;
+    for (var report of reports) {
+        report_list.innerHTML += `
+            <tr data-id="${report.id}"> 
+                <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
+                <td>${report.emtype}</td>
+                <td>${new Date(report.date_time).toDateString()}</td>
+                <td>${report.staus}</td>
+                <td><a href="#" onclick="showDetails(${i})">MORE INFO<a></td>
+                <td><button type="button" onClick="removeReport(this)">Click</button></td>
+            </tr>
+            `;
+        i++;
+
+        if (report.latitude && report.longitude) {
+            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
+            markers.push(marker);
+
+            marker.on('click', (e) => {
+                unSelectMarkers();
+                marker.setIcon(marker_selected);
+            });
+        }
+    }
+}
+
+function updatePage() {
+    report_list.innerHTML = `
+        <tr>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Time Reported</th>
+            <th>Status</th>
+            <th></th>
+            <th></th>
+        </tr>
+        `;
+
+    for (var marker of markers) {
+        map.removeLayer(marker)
+    }
+    markers = [];
+
+    let storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+
+    pupolateListAndMarkers(reports);
+
+    report_list.querySelectorAll('tr').forEach(child => {
+        child.addEventListener('click', selectListMarker);
+    });
+
+    map.on('moveend', setVisibleMarkers);
+
+    for (var marker of markers) {
+    marker.on('click', (e => {
+        unSelectMarkers();
+        e.target.setIcon(marker_selected);
+    } ));
+    marker.bindPopup('<b>Location</b><br>Type:');
+    }
+
+    map.on('click', unSelectMarkers);
+
+    setVisibleMarkers();
+}
+
+function removeReport(rowInfo) {
+    var target = rowInfo.parentNode.parentNode.dataset.id;
+    let storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+    
+    for(var i = 0; i < reports.length; i++) {
+        if(reports[i].id == target) {
+            console.log("Target found", reports[i])
+            reports.splice(i, 1);
+            localStorage.setItem('reports', JSON.stringify(reports));
+            updatePage();
+            break;
+        }
+    }
 }
