@@ -2,6 +2,7 @@
 var map; // Map HTML element
 var report_list; // Report list HTML element
 var markers = []; // Markers array
+var details; // Details HTML element
 
 var marker_selected = L.icon({ // Selected marker appearance
     iconUrl: 'images/red-marker.png',
@@ -55,7 +56,7 @@ function initializeHome() {
                 <td>${report.emtype}</td>
                 <td>${new Date(report.date_time).toDateString()}</td>
                 <td>${report.staus}</td>
-                <td>MORE INFO</td>
+                <td><a href="#" onclick="showDetails(${i})">MORE INFO<a></td>
                 <td><button type="button" onClick="removeReport(${i})">Click</button></td>
             </tr>
             `;
@@ -103,22 +104,20 @@ function selectListMarker(e) {
     // unhighlight all markers
     unSelectMarkers();
 
-        // Get the parent row (`tr`) of the clicked element
-        const row = e.target.closest('tr');
+    // Get the parent row of the clicked element
+    const row = e.target.closest('tr');
 
-        // Check if the row exists and get its first cell (`td`)
-        const target = row ? row.cells[0].textContent.trim() : null;
-    
-        if (!target) {
-            console.error("Row or first cell not found!");
-            return;
-        }
+    // Check if the row exists and get its first cell
+    const target = row ? row.cells[0].textContent.trim() : null;
 
-        console.log(target);
-    // highlight marker and show details when list item is clicked
+    if (!target) {
+        console.error("Row or first cell not found!");
+        return;
+    }
+
+    // highlight marker when list item is clicked
     for (var marker of markers) {
         const coordinates_string = `(${marker.getLatLng().lat}, ${marker.getLatLng().lng})`;
-        console.log(coordinates_string);
         
         if (coordinates_string == target) {
             marker.setIcon(marker_selected);
@@ -150,4 +149,45 @@ function setVisibleMarkers() {
 
         report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = in_bounds ? '' : 'none';
     }
+}
+
+
+function showDetails(i) {
+    // Erase current displaying details, if any
+    if (details != null) {
+        hideDetails(details);
+    }
+
+    // Load reports
+    let storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+
+    // Get the selected report
+    let report = reports[i];
+
+    // Dynamically create details element
+    details = document.createElement('div');
+    details.innerHTML = `
+        <h3>Report Details</h3>
+        <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
+        <p><strong>Type:</strong> ${report.emtype}</p>
+        <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
+        <p><strong>Status:</strong> ${report.staus}</p>
+        <button onclick="editDetails(${i})">Edit</button>
+        <button onclick="hideDetails()">Close</button>
+    `;
+    
+    // Append details to the document
+    document.body.appendChild(details);
+}
+
+
+function hideDetails() {
+    // Remove details from document
+    document.body.removeChild(details);
+    details = null;
+}
+
+function editDetails(i) {
+    // TODO
 }
