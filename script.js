@@ -1,7 +1,7 @@
 // Declare globals
 var map; // Map HTML element
+var markers = []; // Array of map markers
 var report_list; // Report list HTML element
-var markers = []; // Markers array
 var details; // Details HTML element
 
 var marker_selected = L.icon({ // Selected marker appearance
@@ -50,96 +50,92 @@ function initializeHome() {
     document.body.appendChild(report_list);
 
     // Retrieve reports from localStorage, initialize to empty array if none
-    let storedData = localStorage.getItem('reports');
+    var storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
-    // Iterate through reports
-    // Populate report list
-    // Populate markers array
-    let i = 0;
-    for (var report of reports) {
-        // Append to report list
-        report_list.innerHTML += `
-            <tr data-pos="${i}"> 
-                <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
-                <td>${report.emtype}</td>
-                <td>${new Date(report.date_time).toDateString()}</td>
-                <td>${report.staus}</td>
-                <td><a href="#" onclick="showDetails(${i})">MORE INFO<a></td>
-                <td><button type="button" onClick="removeReport(${i})">Click</button></td>
-            </tr>
-            `;
-        i++;
+    // Populate map with reports
+    populateMap(reports);
 
-        // Append to markers array
-        if (report.latitude && report.longitude) {
-            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
-            markers.push(marker);
-            let popupHTML = `<b>${report.addr}</b><br>
-                Type: ${report.emtype}<br>
-                `;
-            marker.bindPopup(popupHTML);
-
-            
-        }
-    }
-
-    // Add event listeners for selecting rows in report list
+    // Add event listeners for selecting rows in the report list
     report_list.querySelectorAll('tr').forEach(child => {
-        child.addEventListener('click', selectListMarker);
+        child.addEventListener('click', () => selectReport(child.id));
     });
 
     // Add event to only list reports that have markers visible on map
-    map.on('moveend', setVisibleMarkers);
-
-    // Add event listener to each marker to update when selected
-    for (var marker of markers) {
-        
-        marker.on('click', (e => {
-            let index = markers.indexOf(e.target);
-            unSelectMarkers();
-            e.target.setIcon(marker_selected);
-            e.target.openPopup();
-            showDetails(index);
-        } ));    
-    }
-
-    // Add event listener to deselect all markers when map is clicked
-    
+    map.on('moveend', updateReportList);
+    // Add event to deselect markers when map is clicked
     map.on('click', unSelectMarkers);
-    map.on('click', hideDetails);
-    // Update visible markers on load
-    setVisibleMarkers();
+
+    // Set the listed reports
+    updateReportList();
 }
 
-
-function selectListMarker(e) {
-    // unhighlight all markers
-    unSelectMarkers();
-
-    // Get the parent row of the clicked element
-    const row = e.target.closest('tr');
-
-    // Check if the row exists and get its first cell
-    const target = row ? row.cells[0].textContent.trim() : null;
-
-    if (!target) {
-        console.error("Row or first cell not found!");
+function populateMap(reports) {
+    // Check reports is not null
+    if (reports == null) {
         return;
     }
 
-    // highlight marker when list item is clicked
-    for (var marker of markers) {
-        const coordinates_string = `(${marker.getLatLng().lat}, ${marker.getLatLng().lng})`;
+    for (var report of reports) {
+        report_list.innerHTML += `
         
-        if (coordinates_string == target) {
+                <tr id="${report.id}"> 
+                    <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
+                    <td>${report.emtype}</td>
+                    <td>${new Date(report.date_time).toDateString()}</td>
+                    <td>${report.staus}</td>
+                    <td><button type="button" onClick="removeReport(this)">Click</button></td>
+                </tr>
+            `;
+
+        if (report.latitude && report.longitude) {
+            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
+            marker.id = report.id;
+            markers.push(marker);
+
+            // Add event to marker that selects its associated report
+            marker.on('click', () => {
+                selectReport(marker.id);
+            });
+        }
+    }
+}
+
+function updateReportList() {
+    let bounds = map.getBounds();
+    for (let marker of markers) {
+        let lat = marker.getLatLng().lat;
+        let lng = marker.getLatLng().lng;
+
+        let in_bounds = (lat < bounds._northEast.lat && lat > bounds._southWest.lat && 
+        lng < bounds._northEast.lng && lng > bounds._southWest.lng);
+
+        document.getElementById(marker.id).style.display = in_bounds ? '' : 'none';
+
+        // Hide details and unselect marker if marker is off the map
+        if (details != null && !in_bounds && details.id == marker.id) {
+
+            hideDetails();
+            unSelectMarkers();
+        }
+    }
+}
+
+function selectReport(id) {
+    // Reset all markers
+    unSelectMarkers();
+
+    // Highlight corrosponding marker
+    for (let marker of markers) {
+        if (marker.id == id) {
             marker.setIcon(marker_selected);
-            marker.openPopup();
             break;
         }
     } 
-}
 
+    // Show corrosponding details
+    showDetails(id);
+}
 
 function unSelectMarkers() {
     // unhighlight all markers
@@ -148,24 +144,7 @@ function unSelectMarkers() {
     }
 }
 
-
-function setVisibleMarkers() {
-    // update list to show reports whose markers are in the map
-    
-    let bounds = map.getBounds();
-    for (var i = 0; i < markers.length; i++) {
-        let lat = markers[i].getLatLng().lat;
-        let lng = markers[i].getLatLng().lng;
-
-        let in_bounds = (lat < bounds._northEast.lat && lat > bounds._southWest.lat && 
-        lng < bounds._northEast.lng && lng > bounds._southWest.lng);
-
-        report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = in_bounds ? '' : 'none';
-    }
-}
-
-
-function showDetails(i) {
+function showDetails(id) {
     // Erase current displaying details, if any
     if (details != null) {
         hideDetails(details);
@@ -174,33 +153,31 @@ function showDetails(i) {
     // Load reports
     let storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
-
-    // Get the selected report
-    let report = reports[i];
-
-    // Dynamically create details element
-    details = document.createElement('div');
-    details.innerHTML = `
-        <h3>Report Details</h3>
-        <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
-        <p><strong>Type:</strong> ${report.emtype}</p>
-        <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
-        <p><strong>Status:</strong> ${report.staus}</p>
-        <button onclick="editDetails(${i})">Edit</button>
-        <button onclick="hideDetails()">Close</button>
-    `;
     
-    // Append details to the document
-    document.body.appendChild(details);
+    // Get the selected report
+    for (let report of reports) {
+        if (report.id == id) {
+            // Dynamically create details element
+            details = document.createElement('div');
+            details.id = id;
+            details.innerHTML = `
+                <h3>Report Details</h3>
+                <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
+                <p><strong>Type:</strong> ${report.emtype}</p>
+                <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
+                <p><strong>Status:</strong> ${report.staus}</p>
+                <button onclick="editDetails(${id})">Edit</button>
+                <button onclick="hideDetails()">Close</button>
+            `;
+            
+            // Append details to the document
+            document.body.appendChild(details);
+        }
+    }
 }
-
 
 function hideDetails() {
     // Remove details from document
     document.body.removeChild(details);
     details = null;
-}
-
-function editDetails(i) {
-    // TODO
 }
