@@ -37,16 +37,6 @@ function initializeHome() {
 
     // Dynamically initialize report list
     report_list = document.createElement('table');
-    report_list.innerHTML = `
-        <tr>
-            <th>Location</th>
-            <th>Type</th>
-            <th>Time Reported</th>
-            <th>Status</th>
-            <th></th>
-            <th></th>
-        </tr>
-        `;
     document.body.appendChild(report_list);
 
     // Retrieve reports from localStorage, initialize to empty array if none
@@ -71,6 +61,23 @@ function initializeHome() {
 }
 
 function populateMap(reports) {
+    // Reset globals
+    // Clear all markers from the map
+    markers.forEach(marker => {
+        map.removeLayer(marker);  // Remove each marker
+    });
+    report_list.innerHTML = `
+    <tr>
+        <th>Location</th>
+        <th>Type</th>
+        <th>Time Reported</th>
+        <th>Status</th>
+        <th></th>
+        <th></th>
+    </tr>
+    `;
+    markers = [];
+
     // Check reports is not null
     if (reports == null) {
         return;
@@ -84,7 +91,7 @@ function populateMap(reports) {
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
                     <td>${report.staus}</td>
-                    <td><button type="button" onClick="removeReport(this)">Click</button></td>
+                    <td><button type="button" onClick="removeReport('${report.id}')"><img src="images/x.png" alt="Remove"></button></td>
                 </tr>
             `;
 
@@ -137,6 +144,20 @@ function selectReport(id) {
     showDetails(id);
 }
 
+function removeReport(id) {
+    // Retrieve reports from localStorage, initialize to an empty array if none
+    var storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+    
+    // Filter out the report with the matching ID
+    reports = reports.filter(report => report.id !== id);
+
+    localStorage.setItem('reports', JSON.stringify(reports));
+
+    // Repopulate map
+    populateMap(reports);
+}
+
 function unSelectMarkers() {
     // unhighlight all markers
     for (var marker of markers) {
@@ -166,7 +187,7 @@ function showDetails(id) {
                 <p><strong>Type:</strong> ${report.emtype}</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
                 <p><strong>Status:</strong> ${report.staus}</p>
-                <button onclick="editDetails(${id})">Edit</button>
+                <button onclick="editDetails(${report})">Edit</button>
                 <button onclick="hideDetails()">Close</button>
             `;
             
@@ -180,4 +201,9 @@ function hideDetails() {
     // Remove details from document
     document.body.removeChild(details);
     details = null;
+}
+
+function editDetails() {
+    // Refresh details
+    showDetails(id);
 }
