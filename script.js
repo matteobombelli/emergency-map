@@ -43,6 +43,7 @@ function initializeHome() {
     var storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
+
     // Populate map with reports
     populateMap(reports);
 
@@ -54,7 +55,10 @@ function initializeHome() {
     // Add event to only list reports that have markers visible on map
     map.on('moveend', updateReportList);
     // Add event to deselect markers when map is clicked
-    map.on('click', unSelectMarkers);
+    map.on('click', () => {
+        unSelectMarkers();
+        hideDetails();
+    });
 
     // Set the listed reports
     updateReportList();
@@ -120,8 +124,7 @@ function updateReportList() {
         document.getElementById(marker.id).style.display = in_bounds ? '' : 'none';
 
         // Hide details and unselect marker if marker is off the map
-        if (details != null && !in_bounds && details.id == marker.id) {
-
+        if (details != null && !in_bounds && details.id == `details_${marker.id}`) {
             hideDetails();
             
         }
@@ -178,16 +181,19 @@ function showDetails(id) {
     // Get the selected report
     for (let report of reports) {
         if (report.id == id) {
-            // Dynamically create details element
+            
+            // Dynamically create details element 
             details = document.createElement('div');
-            details.id = id;
+
+            // Set the details id to details_{report.id} because each should be unique
+            details.id = `details_${report.id}`;
             details.innerHTML = `
                 <h3>Report Details</h3>
                 <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
                 <p><strong>Type:</strong> ${report.emtype}</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
                 <p><strong>Status:</strong> ${report.staus}</p>
-                <button onclick="editDetails(${report})">Edit</button>
+                <button onclick="editDetails(${report.id})">Edit</button>
                 <button onclick="hideDetails()">Close</button>
             `;
             
@@ -205,138 +211,76 @@ function hideDetails() {
     details = null;
 }
 
-function editDetails(i) {
+
+//edit the details of the report
+function editDetails(report) {
+    // Load reports
     let storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
+    for (element of reports) {
+        if (element.id == report.id) {
+            if (details != null) {
+                // Remove the current details and show the 'edit' details which is from the report form
+                hideDetails(details);
+                details = document.createElement('div');
+                details.innerHTML = `
+                    <h3>Report Details</h3>
+                    <label for="fname">First Name: </label>
+                    <input type="text" id="fname" name="fname" required value="${element.fname}"><br><br>
+                    <label for="lname">Last Name: </label>
+                    <input type="text" id="lname" name="lname" required value="${element.lname}"><br><br>
+                    <label for="telnum">Telephone: </label>        
+                    <input type="text" id="telnum" name="telnum" required value="${element.telnum}"><br><br>
+                    <label for="emtype">Emergency Type: </label>       
+                    <input type="text" id="emtype" name="emtype" required value="${element.emtype}"><br><br>
+                    <label for="addr">Address: </label>
+                    <input type="text" id="addr" name="addr" required value="${element.addr}"><br><br>
+                    <label for="latitude">Latitude: </label>
+                    <input type="number" step="0.000001" id="latitude" name="latitude" value="${element.latitude}"><br><br>
+                    <label for="longitude">Longitude: </label>
+                    <input type="number" step="0.000001" id="longitude" name="longitude" value="${element.longitude}"><br><br>
+                    <label for="empic">Picture of Emergency: </label>
+                    <input type="url" id="empic" name="empic" value="${element.empic}"><br><br>
+                    <label for="comment">Comment: </label>
+                    <input type="text" id="comment" name="comment" value="${element.comment}"><br><br>
+                    <button onclick="saveDetails(${element.id})">Save</button>
+                    <button onclick="showDetails(${element.id})">Cancel</button>
+                    `;
+                    document.body.appendChild(details);
+                }
+            }
+        }    
+    }
 
-    // Get the selected report
-    let report = reports[i];
 
-    details.innerHTML = `
-        <h3>Report Details</h3>
-        <label for="fname">First Name: </label>
-        <input type="text" id="fname" name="fname" required value="${report.fname}"><br><br>
-        <label for="lname">Last Name: </label>
-        <input type="text" id="lname" name="lname" required value="${report.lname}"><br><br>
-        <label for="telnum">Telephone: </label>        
-        <input type="text" id="telnum" name="telnum" required value="${report.telnum}"><br><br>
-        <label for="emtype">Emergency Type: </label>       
-        <input type="text" id="emtype" name="emtype" required value="${report.emtype}"><br><br>
-        <label for="addr">Address: </label>
-        <input type="text" id="addr" name="addr" required value="${report.addr}"><br><br>
-        <label for="latitude">Latitude: </label>
-        <input type="number" step="0.000001" id="latitude" name="latitude" value="${report.latitude}"><br><br>
-        <label for="longitude">Longitude: </label>
-        <input type="number" step="0.000001" id="longitude" name="longitude" value="${report.longitude}"><br><br>
-        <label for="empic">Picture of Emergency: </label>
-        <input type="url" id="empic" name="empic" value="${report.empic}"><br><br>
-        <label for="comment">Comment: </label>
-        <input type="text" id="comment" name="comment" value="${report.comment}"><br><br>
-        <button onclick="saveDetails(${i})">Save</button>
-        <button onclick="showDetails(${i})">Close</button>
-        `;
-}
-
-function saveDetails(i){
+//saves the edited details
+function saveDetails(report){
+    // Load reports
     let storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
+    
+    for (element of reports) {
+        if (element.id == report.id) {
+            // Update the report with the new details
+            element.fname = document.getElementById('fname').value;
+            element.lname = document.getElementById('lname').value;
+            element.telnum = document.getElementById('telnum').value;
+            element.emtype = document.getElementById('emtype').value;
+            element.addr = document.getElementById('addr').value;
+            element.latitude = document.getElementById('latitude').value;
+            element.longitude = document.getElementById('longitude').value;
+            element.empic = document.getElementById('empic').value;
+            element.comment = document.getElementById('comment').value;
+        }
+    }
 
-    // Get the selected report
-    let report = reports[i];
-
-    report.fname = document.getElementById('fname').value;
-    report.lname = document.getElementById('lname').value;
-    report.telnum = document.getElementById('telnum').value;
-    report.emtype = document.getElementById('emtype').value;
-    report.addr = document.getElementById('addr').value;
-    report.latitude = document.getElementById('latitude').value;
-    report.longitude = document.getElementById('longitude').value;
-    report.empic = document.getElementById('empic').value;
-    report.comment = document.getElementById('comment').value;
-
-    // Save the updated report
+    // Save the updated reports, hide the details, repopulate map incase coords changed, and refresh the page
     localStorage.setItem('reports', JSON.stringify(reports));
-
-    // Update the details
-    showDetails(i);
+    hideDetails();
+    populateMap(reports);
+    refreshPage();
 }
 
-//this function is optional pop up window for editing details
-function showPopup(i){
-    // // Check if the popup already exists and remove it
-    // const existingPopup = document.getElementById('dynamic-popup');
-    // if (existingPopup) {
-    //     existingPopup.remove();
-    // }
-
-    // // Create the overlay
-    // const overlay = document.createElement('div');
-    // overlay.id = 'dynamic-overlay';
-    
-
-    // // Create the popup container
-    // const popup = document.createElement('div');
-    // popup.id = 'dynamic-popup';
-
-    // // Add content to the popup
-    // const title = document.createElement('h2');
-    // title.textContent = `Edit report details`;
-    // popup.appendChild(title);
-
-    // let storedData = localStorage.getItem('reports');
-    // let reports = storedData ? JSON.parse(storedData) : [];
-
-    // // Get the selected report
-    // let report = reports[i];
-
-    // const description = document.createElement('div');
-    // description.innerHTML = `
-    //     <label for="fname">First Name: </label>
-    //     <input type="text" id="fname" name="fname" required value="${report.fname}"><br><br>
-    //     <label for="lname">Last Name: </label>
-    //     <input type="text" id="lname" name="lname" required value="${report.lname}"><br><br>
-    //     <label for="telnum">Telephone: </label>        
-    //     <input type="text" id="telnum" name="telnum" required value="${report.telnum}"><br><br>
-    //     <label for="emtype">Emergency Type: </label>       
-    //     <input type="text" id="emtype" name="emtype" required value="${report.emtype}"><br><br>
-    //     <label for="addr">Address: </label>
-    //     <input type="text" id="addr" name="addr" required value="${report.addr}"><br><br>
-    //     <label for="latitude">Latitude: </label>
-    //     <input type="number" step="0.000001" id="latitude" name="latitude" value="${report.latitude}"><br><br>
-    //     <label for="longitude">Longitude: </label>
-    //     <input type="number" step="0.000001" id="longitude" name="longitude" value="${report.longitude}"><br><br>
-    //     <label for="empic">Picture of Emergency: </label>
-    //     <input type="url" id="empic" name="empic" value="${report.empic}"><br><br>
-    //     <label for="comment">Comment: </label>
-    //     <input type="text" id="comment" name="comment" value="${report.comment}"><br><br>
-    //     `;
-    // popup.appendChild(description);
-
-    // // Add a close button
-    // const closeButton = document.createElement('button');
-    // closeButton.id = 'popup-button';
-    // closeButton.textContent = 'Close';
-
-    // const saveButton = document.createElement('button');
-    // saveButton.id = 'popup-button';
-    // saveButton.textContent = 'Save';
-    
-
-    // closeButton.addEventListener('click', () => {
-    //     overlay.remove();
-    //     popup.remove();
-    // });
-
-    // //TODO
-    // saveButton.addEventListener('click', () => {
-    //     overlay.remove();
-    //     popup.remove();
-    // });
-
-    // popup.appendChild(closeButton);
-    // popup.appendChild(saveButton);
-
-    // // Append overlay and popup to the body
-    // document.body.appendChild(overlay);
-    // document.body.appendChild(popup);
+function refreshPage(){
+    location.reload();
 }
