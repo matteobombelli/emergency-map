@@ -7,9 +7,17 @@ table, th, td {
     padding: 10px;
 }
 
+td img {
+    max-width: 100%;
+    max-height: 35px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+
 tbody:nth-child(even) {
     background-color: rgb(231, 231, 231);
-
 }
 
 th {

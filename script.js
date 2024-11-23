@@ -1,7 +1,7 @@
 // Declare globals
 var map; // Map HTML element
+var markers = []; // Array of map markers
 var report_list; // Report list HTML element
-var markers = []; // Markers array
 var details; // Details HTML element
 
 var marker_selected = L.icon({ // Selected marker appearance
@@ -14,7 +14,7 @@ var marker_selected = L.icon({ // Selected marker appearance
 });
 
 function initializeHome() {
-    // Add top nav bar
+    // Dynamincally initialize topnav
     const topnav = document.createElement("div");
     topnav.className = "topnav";
     topnav.innerHTML = `
@@ -37,112 +37,126 @@ function initializeHome() {
 
     // Dynamically initialize report list
     report_list = document.createElement('table');
-    report_list.innerHTML = `
-        <tr>
-            <th>Location</th>
-            <th>Type</th>
-            <th>Time Reported</th>
-            <th>Status</th>
-            <th></th>
-            <th></th>
-        </tr>
-        `;
     document.body.appendChild(report_list);
 
     // Retrieve reports from localStorage, initialize to empty array if none
-    let storedData = localStorage.getItem('reports');
+    var storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
-    // Iterate through reports
-    // Populate report list
-    // Populate markers array
-    let i = 0;
-    for (var report of reports) {
-        // Append to report list
-        report_list.innerHTML += `
-            <tr data-pos="${i}"> 
-                <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
-                <td>${report.emtype}</td>
-                <td>${new Date(report.date_time).toDateString()}</td>
-                <td>${report.staus}</td>
-                <td><a href="#" onclick="showDetails(${i})">MORE INFO<a></td>
-                <td><button type="button" onClick="removeReport(${i})">Click</button></td>
-            </tr>
-            `;
-        i++;
+    // Populate map with reports
+    populateMap(reports);
 
-        // Append to markers array
-        if (report.latitude && report.longitude) {
-            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
-            markers.push(marker);
-            let popupHTML = `<b>${report.addr}</b><br>
-                Type: ${report.emtype}<br>
-                `;
-            marker.bindPopup(popupHTML);
-
-            
-        }
-    }
-
-    // Add event listeners for selecting rows in report list
+    // Add event listeners for selecting rows in the report list
     report_list.querySelectorAll('tr').forEach(child => {
-        child.addEventListener('click', selectListMarker);
+        child.addEventListener('click', () => selectReport(child.id));
     });
 
     // Add event to only list reports that have markers visible on map
-    map.on('moveend', setVisibleMarkers);
-
-    // Add event listener to each marker to update when selected
-    for (var marker of markers) {
-        
-        marker.on('click', (e => {
-            let index = markers.indexOf(e.target);
-            unSelectMarkers();
-            e.target.setIcon(marker_selected);
-            e.target.openPopup();
-            showDetails(index);
-        } ));    
-    }
-
-    // Add event listener to deselect all markers when map is clicked
-    
+    map.on('moveend', updateReportList);
+    // Add event to deselect markers when map is clicked
     map.on('click', unSelectMarkers);
-    map.on('click', hideDetails);
-    // Update visible markers on load
-    setVisibleMarkers();
+
+    // Set the listed reports
+    updateReportList();
 }
 
+function populateMap(reports) {
+    // Reset globals
+    // Clear all markers from the map
+    markers.forEach(marker => {
+        map.removeLayer(marker);  // Remove each marker
+    });
+    report_list.innerHTML = `
+    <tr>
+        <th>Location</th>
+        <th>Type</th>
+        <th>Time Reported</th>
+        <th>Status</th>
+        <th></th>
+        <th></th>
+    </tr>
+    `;
+    markers = [];
 
-function selectListMarker(e) {
-    // unhighlight all markers
-    unSelectMarkers();
-
-    // Get the parent row of the clicked element
-    const row = e.target.closest('tr');
-
-    // Check if the row exists and get its first cell
-    const target = row ? row.cells[0].textContent.trim() : null;
-
-    if (!target) {
-        console.error("Row or first cell not found!");
+    // Check reports is not null
+    if (reports == null) {
         return;
     }
 
-    // highlight marker when list item is clicked
-    for (var marker of markers) {
-        const coordinates_lat = marker.getLatLng().lat;
-        const coordinates_lng = marker.getLatLng().lng;
-        const target_lat = target.split(',')[0].slice(1);
-        const target_lng = target.split(',')[1].slice(0, -1);
+    for (var report of reports) {
+        report_list.innerHTML += `
+        
+                <tr id="${report.id}"> 
+                    <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
+                    <td>${report.emtype}</td>
+                    <td>${new Date(report.date_time).toDateString()}</td>
+                    <td>${report.staus}</td>
+                    <td><button type="button" onClick="removeReport('${report.id}')"><img src="images/x.png" alt="Remove"></button></td>
+                </tr>
+            `;
 
-        if (coordinates_lat == target_lat && coordinates_lng == target_lng) {
+        if (report.latitude && report.longitude) {
+            let marker = L.marker([report.latitude, report.longitude]).addTo(map);
+            marker.id = report.id;
+            markers.push(marker);
+
+            // Add event to marker that selects its associated report
+            marker.on('click', () => {
+                selectReport(marker.id);
+            });
+        }
+    }
+}
+
+function updateReportList() {
+    let bounds = map.getBounds();
+    for (let marker of markers) {
+        let lat = marker.getLatLng().lat;
+        let lng = marker.getLatLng().lng;
+
+        let in_bounds = (lat < bounds._northEast.lat && lat > bounds._southWest.lat && 
+        lng < bounds._northEast.lng && lng > bounds._southWest.lng);
+
+        document.getElementById(marker.id).style.display = in_bounds ? '' : 'none';
+
+        // Hide details and unselect marker if marker is off the map
+        if (details != null && !in_bounds && details.id == marker.id) {
+
+            hideDetails();
+            
+        }
+    }
+}
+
+function selectReport(id) {
+    // Reset all markers
+    unSelectMarkers();
+
+    // Highlight corrosponding marker
+    for (let marker of markers) {
+        if (marker.id == id) {
             marker.setIcon(marker_selected);
-            marker.openPopup();
             break;
         }
     } 
+
+    // Show corrosponding details
+    showDetails(id);
 }
 
+function removeReport(id) {
+    // Retrieve reports from localStorage, initialize to an empty array if none
+    var storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+    
+    // Filter out the report with the matching ID
+    reports = reports.filter(report => report.id !== id);
+
+    localStorage.setItem('reports', JSON.stringify(reports));
+
+    // Repopulate map
+    populateMap(reports);
+}
 
 function unSelectMarkers() {
     // unhighlight all markers
@@ -151,24 +165,7 @@ function unSelectMarkers() {
     }
 }
 
-
-function setVisibleMarkers() {
-    // update list to show reports whose markers are in the map
-    
-    let bounds = map.getBounds();
-    for (var i = 0; i < markers.length; i++) {
-        let lat = markers[i].getLatLng().lat;
-        let lng = markers[i].getLatLng().lng;
-
-        let in_bounds = (lat < bounds._northEast.lat && lat > bounds._southWest.lat && 
-        lng < bounds._northEast.lng && lng > bounds._southWest.lng);
-
-        report_list.querySelector(`tbody:nth-child(${i + 2})`).style.display = in_bounds ? '' : 'none';
-    }
-}
-
-
-function showDetails(i) {
+function showDetails(id) {
     // Erase current displaying details, if any
     if (details != null) {
         hideDetails(details);
@@ -177,29 +174,33 @@ function showDetails(i) {
     // Load reports
     let storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
-
-    // Get the selected report
-    let report = reports[i];
-
-    // Dynamically create details element
-    details = document.createElement('div');
-    details.innerHTML = `
-        <h3>Report Details</h3>
-        <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
-        <p><strong>Type:</strong> ${report.emtype}</p>
-        <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
-        <p><strong>Status:</strong> ${report.staus}</p>
-        <button onclick="editDetails(${i})">Edit</button>
-        <button onclick="hideDetails()">Close</button>
-    `;
     
-    // Append details to the document
-    document.body.appendChild(details);
+    // Get the selected report
+    for (let report of reports) {
+        if (report.id == id) {
+            // Dynamically create details element
+            details = document.createElement('div');
+            details.id = id;
+            details.innerHTML = `
+                <h3>Report Details</h3>
+                <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
+                <p><strong>Type:</strong> ${report.emtype}</p>
+                <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
+                <p><strong>Status:</strong> ${report.staus}</p>
+                <button onclick="editDetails(${report})">Edit</button>
+                <button onclick="hideDetails()">Close</button>
+            `;
+            
+            // Append details to the document
+            document.body.appendChild(details);
+        }
+    }
 }
-
 
 function hideDetails() {
     // Remove details from document
+
+    unSelectMarkers();
     document.body.removeChild(details);
     details = null;
 }

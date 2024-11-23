@@ -1,11 +1,29 @@
-class emergency_report{
+class report{   // Report object
     constructor() {
         const time = new Date()
-        this.date_time = time.toUTCString();
+        this.id = newId();
+        this.date_time = time.toLocaleString('en-US', { timeZone: 'UTC' });
         this.staus = "OPEN";
+
+        function newId() {
+            // Retrieve array of reports, if non-existent initialize new array
+            var storedData = localStorage.getItem('reportId');
+            let id = storedData ? JSON.parse(storedData) : 0;
+            
+            // Check for null
+            if (id == null) {
+                id = 0;
+            } else {
+                id++;
+            }
+    
+            // Store new id counter
+            localStorage.setItem('reportId', id);
+            
+            return 'report_' + id;
+        }
     }
 }
-
 
 function initializeReport() {
     // Add top nav bar
@@ -53,23 +71,24 @@ function initializeReport() {
         // Prevent the default form submission behavior
         e.preventDefault(); 
     
-        // Create a new emergency report object
+        // Create a new report object
         const fd = new FormData(report_form);
         const obj = Object.fromEntries(fd);
-        const new_rep = new emergency_report();
-        Object.assign(new_rep, obj);
+        const new_report = new report();
+        Object.assign(new_report, obj);
 
         // Retrieve array of reports, if non-existent initialize new array
-        const storedData = localStorage.getItem('reports');
+        var storedData = localStorage.getItem('reports');
         let reports = storedData ? JSON.parse(storedData) : [];
         
         // Check for null
         if (reports == null) {
             reports = [];
         }
+        
     
         // Append the object to the array
-        reports.push(new_rep);
+        reports.push(new_report);
 
         // Save new array
         localStorage.setItem('reports', JSON.stringify(reports));
@@ -79,3 +98,4 @@ function initializeReport() {
     });
     
 }
+
