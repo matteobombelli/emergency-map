@@ -123,7 +123,7 @@ function updateReportList() {
         if (details != null && !in_bounds && details.id == marker.id) {
 
             hideDetails();
-            unSelectMarkers();
+            
         }
     }
 }
@@ -199,6 +199,8 @@ function showDetails(id) {
 
 function hideDetails() {
     // Remove details from document
+
+    unSelectMarkers();
     document.body.removeChild(details);
     details = null;
 }
