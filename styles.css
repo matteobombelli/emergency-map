@@ -91,3 +91,8 @@ td {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.reportImg {
+    width: 300px;
+    height: 300px;
+}

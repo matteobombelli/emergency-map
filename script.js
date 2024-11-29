@@ -184,11 +184,18 @@ function showDetails(id) {
             
             // Dynamically create details element 
             details = document.createElement('div');
+            
+            // Hide img if a user didn't provide an url
+            var display = "";
+            if(report.empic == "") {
+                display = "none";
+            }
 
             // Set the details id to details_{report.id} because each should be unique
             details.id = `details_${report.id}`;
             details.innerHTML = `
                 <h3>Report Details</h3>
+                <img class="reportImg" style="display: ${display};" src="${report.empic}"/>
                 <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
                 <p><strong>Type:</strong> ${report.emtype}</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
@@ -196,7 +203,6 @@ function showDetails(id) {
                 <button onclick="editDetails(${report.id})">Edit</button>
                 <button onclick="hideDetails()">Close</button>
             `;
-            
             // Append details to the document
             document.body.appendChild(details);
         }
