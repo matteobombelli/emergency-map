@@ -1,9 +1,9 @@
-class report{   // Report object
+class report {   // Report object
     constructor() {
         const time = new Date()
         this.id = newId();
         this.date_time = time.toLocaleString('en-US', { timeZone: 'UTC' });
-        this.staus = "OPEN";
+        this.status = "OPEN";
 
         function newId() {
             // Retrieve array of reports, if non-existent initialize new array
@@ -30,10 +30,11 @@ function initializeReport() {
     const topnav = document.createElement("div");
     topnav.className = "topnav";
     topnav.innerHTML = `
-        <a  href="index.html">Home</a>
-        <a class = "active" href="report.html">Create Report</a>
-        `
+        <a href="index.html">Home</a>
+        <a class="active" href="report.html">Create Report</a>
+    `;
     document.body.appendChild(topnav);
+
     // Dynamically initialize form
     let report_form = document.createElement('form');
     report_form.className = 'report';
@@ -48,7 +49,7 @@ function initializeReport() {
         <label for="emtype">Emergency Type: </label>       
         <input type="text" id="emtype" name="emtype" required><br><br>
         <label for="addr">Address: </label>
-        <input type="text" id="addr" name="addr" required><br><br>
+        <input type="text" id="addr" name="addr" required placeholder="1234 Example Street, Vancouver, BC, Canada"><br><br>
         <label for="latitude">Latitude (optional): </label>
         <input type="number" step="0.000001" id="latitude" name="latitude"><br><br>
         <label for="longitude">Longitude (optional): </label>
@@ -57,23 +58,32 @@ function initializeReport() {
         <input type="url" id="empic" name="empic"><br><br>
         <label for="comment">Comment: </label>
         <input type="text" id="comment" name="comment"><br><br>
-        <button type="submit"> Submit </button>
+        <button type="submit">Submit</button>
         </fieldset>
-        `;
+    `;
 
     // Add form to document
     document.body.appendChild(report_form);
 
     // Listen for submit
-    // New report is made and appended to array under key='reports'
-    report_form.addEventListener('submit', (e) => {
+    report_form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        // Prevent the default form submission behavior
-        e.preventDefault(); 
-    
-        // Create a new report object
         const fd = new FormData(report_form);
         const obj = Object.fromEntries(fd);
+        
+        // Check for missing latitude and longitude and geocode if needed
+        if (!obj.latitude || !obj.longitude) {
+            const address = obj.addr;
+            if (address) {
+                const coords = await geocodeAddress(address);
+                if (coords) {
+                    obj.latitude = Math.round(coords.lat * 10000) / 10000;
+                    obj.longitude = Math.round(coords.lon * 10000) / 10000;
+                }
+            }
+        }
+
         const new_report = new report();
         Object.assign(new_report, obj);
 
@@ -81,12 +91,6 @@ function initializeReport() {
         var storedData = localStorage.getItem('reports');
         let reports = storedData ? JSON.parse(storedData) : [];
         
-        // Check for null
-        if (reports == null) {
-            reports = [];
-        }
-        
-    
         // Append the object to the array
         reports.push(new_report);
 
@@ -96,6 +100,23 @@ function initializeReport() {
         // Clear the form
         report_form.reset();
     });
-    
 }
 
+// Geocoding function using Nominatim
+async function geocodeAddress(address) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon)
+            };
+        }
+        alert('Geocoding failed: Address not found.');
+    } catch (error) {
+        console.error('Error during geocoding:', error);
+        alert('Geocoding error occurred.');
+    }
+    return null;
+}
