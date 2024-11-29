@@ -6,7 +6,7 @@ class report {   // Report object
         this.status = "OPEN";
 
         function newId() {
-            // Retrieve array of reports, if non-existent initialize new array
+            // Retrieve report id counter, if empty initialize to 0
             var storedData = localStorage.getItem('reportId');
             let id = storedData ? JSON.parse(storedData) : 0;
             
@@ -49,7 +49,8 @@ function initializeReport() {
         <label for="emtype">Emergency Type: </label>       
         <input type="text" id="emtype" name="emtype" required><br><br>
         <label for="addr">Address: </label>
-        <input type="text" id="addr" name="addr" required placeholder="1234 Example Street, Vancouver, BC, Canada"><br><br>
+        <input type="text" id="addr" name="addr" required placeholder="1234 Example Street, Vancouver, BC, Canada">
+        <span id="addr-validation-msg" style="color: red;"></span><br><br>
         <label for="latitude">Latitude (optional): </label>
         <input type="number" step="0.000001" id="latitude" name="latitude"><br><br>
         <label for="longitude">Longitude (optional): </label>
@@ -65,25 +66,51 @@ function initializeReport() {
     // Add form to document
     document.body.appendChild(report_form);
 
+    // Track address validation status
+    let isAddressValid = false;
+
+    // Add validation to address field
+    const addrField = document.getElementById('addr');
+    const validationMsg = document.getElementById('addr-validation-msg');
+
+    addrField.addEventListener('blur', async () => {
+        const address = addrField.value.trim();
+        if (!address) {
+            validationMsg.textContent = "Address is required.";
+            isAddressValid = false;
+            return;
+        }
+
+        validationMsg.textContent = "Validating address...";
+        const coords = await geocodeAddress(address);
+
+        if (coords) {
+            validationMsg.textContent = "Address is valid.";
+            validationMsg.style.color = "green";
+            isAddressValid = true;
+
+            // Optionally set latitude and longitude fields
+            let roundingMult = 10 ** 6;
+            document.getElementById('latitude').value = Math.round(coords.lat * roundingMult) / roundingMult;
+            document.getElementById('longitude').value = Math.round(coords.lon * roundingMult) / roundingMult;
+        } else {
+            validationMsg.textContent = "Invalid address. Please check and try again.";
+            validationMsg.style.color = "red";
+            isAddressValid = false;
+        }
+    });
+
     // Listen for submit
     report_form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const fd = new FormData(report_form);
-        const obj = Object.fromEntries(fd);
-        
-        // Check for missing latitude and longitude and geocode if needed
-        if (!obj.latitude || !obj.longitude) {
-            const address = obj.addr;
-            if (address) {
-                const coords = await geocodeAddress(address);
-                if (coords) {
-                    obj.latitude = Math.round(coords.lat * 10000) / 10000;
-                    obj.longitude = Math.round(coords.lon * 10000) / 10000;
-                }
-            }
+        if (!isAddressValid) {
+            alert("Please provide a valid address before submitting.");
+            return;
         }
 
+        const fd = new FormData(report_form);
+        const obj = Object.fromEntries(fd);
         const new_report = new report();
         Object.assign(new_report, obj);
 
@@ -99,10 +126,12 @@ function initializeReport() {
         
         // Clear the form
         report_form.reset();
+        validationMsg.textContent = ""; // Clear validation message
     });
 }
 
 // Geocoding function using Nominatim
+// Returns lat and lon as an object
 async function geocodeAddress(address) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`);
@@ -113,10 +142,8 @@ async function geocodeAddress(address) {
                 lon: parseFloat(data[0].lon)
             };
         }
-        alert('Geocoding failed: Address not found.');
     } catch (error) {
         console.error('Error during geocoding:', error);
-        alert('Geocoding error occurred.');
     }
     return null;
 }
