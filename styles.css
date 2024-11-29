@@ -1,35 +1,13 @@
-#map { 
-    height: 500px; 
-}
-
-table, th, td {
-    border-collapse: collapse;
-    padding: 10px;
-}
-
-td img {
-    max-width: 100%;
-    max-height: 35px;
+/* Global Reset */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100%;
     width: 100%;
-    height: auto;
-    object-fit: contain;
 }
 
-
-tbody:nth-child(even) {
-    background-color: rgb(231, 231, 231);
-}
-
-th {
-    background-color: rgb(214, 79, 79);
-    color: white;
-    text-align: left;
-}
-
-td {
-    padding-right: 20px;
-}
-
+/* Topnav */
 /* Add a black background color to the top navigation */
 .topnav {
     background-color: #333;
@@ -58,6 +36,51 @@ td {
     color: white;
 }
 
+/* Map */
+#map { 
+    height: 500px; 
+}
+
+/* Report List */
+div.report_list {
+
+}
+
+div.report_list table, 
+div.report_list th, 
+div.report_list td {
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+div.report_list th {
+    background-color: rgb(214, 79, 79);
+    color: white;
+    text-align: left;
+}
+
+div.report_list td {
+    padding-right: 20px;
+}
+
+div.report_list tbody:nth-child(even) {
+    background-color: rgb(231, 231, 231);
+}
+
+div.report_list img {
+    max-width: 100%;
+    max-height: 35px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Details Popup */
+div.details {
+
+}
+
+/* Remove Report Popup */
 #dynamic-overlay {
     position: fixed;
     top: 0;

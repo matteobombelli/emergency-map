@@ -1,7 +1,13 @@
-form.report {
-    background-color: blanchedalmond;
+/* Global Reset */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
 }
 
+/* Topnav */
 /* Add a black background color to the top navigation */
 .topnav {
     background-color: #333;
@@ -28,4 +34,9 @@ form.report {
 .topnav a.active {
     background-color: #04AA6D;
     color: white;
+}
+
+/* Form */
+form.report {
+    background-color: blanchedalmond;
 }

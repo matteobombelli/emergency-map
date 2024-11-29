@@ -39,6 +39,7 @@ function initializeHome() {
 
     // Dynamically initialize report list
     report_list = document.createElement('table');
+    report_list.className = 'report_list';
     document.body.appendChild(report_list);
 
     // Retrieve reports from localStorage, initialize to empty array if none
@@ -185,6 +186,7 @@ function showDetails(id) {
             
             // Dynamically create details element 
             details = document.createElement('div');
+            details.className = 'details';
             
             // Hide img if a user didn't provide an url
             var display = "";
@@ -230,6 +232,7 @@ function editDetails(report) {
                 // Remove the current details and show the 'edit' details which is from the report form
                 hideDetails(details);
                 details = document.createElement('div');
+                details.className = 'details';
                 details.innerHTML = `
                     <h3>Report Details</h3>
                     <label for="fname">First Name: </label>
