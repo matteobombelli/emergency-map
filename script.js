@@ -3,6 +3,10 @@ var map; // Map HTML element
 var markers = []; // Array of map markers
 var report_list; // Report list HTML element
 var details; // Details HTML element
+const PASSCODE = "21232f297a57a5a743894a0e4a801fc3";
+
+
+
 
 var marker_selected = L.icon({ // Selected marker appearance
     iconUrl: 'images/red-marker.png',
@@ -95,7 +99,7 @@ function populateMap(reports) {
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
                     <td>${report.staus}</td>
-                    <td><button type="button" onClick="removeReport('${report.id}')"><img src="images/x.png" alt="Remove"></button></td>
+                    <td><button type="button" onClick="promptPasscode(${report.id}, 'delete')"><img src="images/x.png" alt="Remove"></button></td>
                 </tr>
             `;
 
@@ -193,7 +197,7 @@ function showDetails(id) {
                 <p><strong>Type:</strong> ${report.emtype}</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
                 <p><strong>Status:</strong> ${report.staus}</p>
-                <button onclick="editDetails(${report.id})">Edit</button>
+                <button onclick="promptPasscode(${report.id}, 'edit')">Edit</button>
                 <button onclick="hideDetails()">Close</button>
             `;
             
@@ -284,3 +288,101 @@ function saveDetails(report){
 function refreshPage(){
     location.reload();
 }
+
+// Function that converts argument into a hash value and returns it
+// Returns null if an error occurs
+async function hashValue(valueToHash) {
+    var url = `https://api.hashify.net/hash/md5/hex?value=${encodeURIComponent(valueToHash)}`;
+    try{
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data.Digest);
+
+        if (data.Digest == PASSCODE) {
+            return true;
+        }
+        return false;
+    }catch(error){
+        console.error("Error:", error);
+        return null;
+    }
+    
+}
+
+
+function promptPasscode(report, type){
+    // Check if the popup already exists and remove it
+    
+    const existingPopup = document.getElementById('dynamic-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    // Create the overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'dynamic-overlay';
+    
+    // Create the popup container
+    const popup = document.createElement('div');
+    popup.id = 'dynamic-popup';
+    // Add content to the popup
+    const title = document.createElement('h2');
+    title.textContent = `Enter passcode`;
+    popup.appendChild(title);
+    
+    const description = document.createElement('div');
+    description.innerHTML = `
+        <input type="password" id="passcode" name="passcode" required>
+        `;
+    popup.appendChild(description);
+    // Add a close button
+    const closeButton = document.createElement('button');
+    closeButton.id = 'popup-button';
+    closeButton.textContent = 'Close';
+    const enterButton = document.createElement('button');
+    enterButton.id = 'popup-button';
+    enterButton.textContent = 'Enter';
+    
+    closeButton.addEventListener('click', () => {
+        overlay.remove();
+        popup.remove();
+    });
+    //TODO
+    enterButton.addEventListener('click', async () => {
+        // Check if the passcode is correct
+        try{
+            console.log("passcode: " + document.getElementById('passcode').value);
+        const passcodeInput = await hashValue(document.getElementById('passcode').value);
+    
+        if (passcodeInput == true) {
+            if (type == 'edit') {
+                overlay.remove();
+                popup.remove();
+                editDetails(report);
+            } else if (type == 'delete') {
+                overlay.remove();
+                popup.remove();
+                removeReport(report.id);
+                hideDetails();
+            }
+        } else if (passcodeInput == false) {
+            alert("Incorrect passcode");
+            
+        } else {
+            alert("Error: Could not verify passcode");
+        }
+
+        }catch(error){
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+        }
+        
+
+        
+    });
+    popup.appendChild(closeButton);
+    popup.appendChild(enterButton);
+    // Append overlay and popup to the body
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+}
+
