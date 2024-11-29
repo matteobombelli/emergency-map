@@ -59,9 +59,6 @@ function initializeHome() {
         unSelectMarkers();
         hideDetails();
     });
-
-    // Set the listed reports
-    updateReportList();
 }
 
 function populateMap(reports) {
@@ -110,6 +107,9 @@ function populateMap(reports) {
             });
         }
     }
+
+    // Set the listed reports
+    updateReportList();
 }
 
 function updateReportList() {
