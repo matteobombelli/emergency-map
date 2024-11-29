@@ -42,32 +42,32 @@ html, body {
 }
 
 /* Report List */
-div.report_list {
+table.report_list {
 
 }
 
-div.report_list table, 
-div.report_list th, 
-div.report_list td {
+table.report_list table, 
+table.report_list th, 
+table.report_list td {
     border-collapse: collapse;
     padding: 10px;
 }
 
-div.report_list th {
+table.report_list th {
     background-color: rgb(214, 79, 79);
     color: white;
     text-align: left;
 }
 
-div.report_list td {
+table.report_list td {
     padding-right: 20px;
 }
 
-div.report_list tbody:nth-child(even) {
+table.report_list tbody:nth-child(even) {
     background-color: rgb(231, 231, 231);
 }
 
-div.report_list img {
+table.report_list img {
     max-width: 100%;
     max-height: 35px;
     width: 100%;
