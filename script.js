@@ -6,8 +6,6 @@ var details; // Details HTML element
 const PASSCODE = "21232f297a57a5a743894a0e4a801fc3";
 
 
-
-
 var marker_selected = L.icon({ // Selected marker appearance
     iconUrl: 'images/red-marker.png',
     iconSize: [25, 41],
@@ -47,14 +45,8 @@ function initializeHome() {
     var storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
-
     // Populate map with reports
     populateMap(reports);
-
-    // Add event listeners for selecting rows in the report list
-    report_list.querySelectorAll('tr').forEach(child => {
-        child.addEventListener('click', () => selectReport(child.id));
-    });
 
     // Add event to only list reports that have markers visible on map
     map.on('moveend', updateReportList);
@@ -133,6 +125,11 @@ function updateReportList() {
             
         }
     }
+
+    // Add event listeners for selecting rows in the report list
+    report_list.querySelectorAll('tr').forEach(child => {
+        child.addEventListener('click', () => selectReport(child.id));
+    });
 }
 
 function selectReport(id) {
