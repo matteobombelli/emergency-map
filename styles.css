@@ -43,14 +43,15 @@ html, body {
 
 /* Report List */
 table.report_list {
-
+    width: 100%;
 }
 
-table.report_list table, 
+table.report_list, 
 table.report_list th, 
 table.report_list td {
     border-collapse: collapse;
     padding: 10px;
+    border: 2px solid white;
 }
 
 table.report_list th {
@@ -60,7 +61,15 @@ table.report_list th {
 }
 
 table.report_list td {
-    padding-right: 20px;
+
+}
+
+table.report_list td:last-child,
+table.report_list th:last-child {
+    min-width: 60px;
+    max-width: 10%;
+    text-align: center;
+    padding: 0;
 }
 
 table.report_list tbody:nth-child(even) {
@@ -75,9 +84,50 @@ table.report_list img {
     object-fit: contain;
 }
 
+table.report_list td button {
+    width: 60px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
 /* Details Popup */
 div.details {
+    overflow-x: auto;
+    border: 2px solid white;
+    margin: 20px 0;
+}
 
+div.details > * {
+    padding: 0 10px;
+}
+
+div.details h3 {
+    padding: 10px;
+    color: white;
+    background-color: rgb(214, 79, 79);
+    margin: 0;
+    min-width: 300px;
+}
+
+div.details img {
+    min-width: 300px;
+    max-width: 90%;
+    margin: 10px;
+    border: 1px solid rgb(231, 231, 231);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+div.details button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin: 10px 15px 0 12px;
+    width: 75px;
 }
 
 /* Remove Report Popup */
@@ -105,40 +155,12 @@ div.details {
     text-align: center;
 }
 
-#popup-button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+#dynamic-popup h2 {
+    margin: 15px 0;
 }
 
-#dynamic-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-}
-#dynamic-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    width: 300px;
-    text-align: center;
-}
 #popup-button {
-    margin-top: 10px;
+    margin: 15px 15px 0;
     padding: 10px 20px;
     background-color: #007BFF;
     color: #fff;

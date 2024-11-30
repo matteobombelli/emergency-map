@@ -37,10 +37,15 @@ function initializeHome() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
+    // add a container for the list to allow overflow
+    var div = document.createElement('div');
+    div.style.overflowX = "auto";
+    document.body.appendChild(div);
+    
     // Dynamically initialize report list
     report_list = document.createElement('table');
     report_list.className = 'report_list';
-    document.body.appendChild(report_list);
+    div.appendChild(report_list)
 
     // Retrieve reports from localStorage, initialize to empty array if none
     var storedData = localStorage.getItem('reports');
@@ -71,7 +76,6 @@ function populateMap(reports) {
         <th>Time Reported</th>
         <th>Status</th>
         <th></th>
-        <th></th>
     </tr>
     `;
     markers = [];
@@ -88,7 +92,7 @@ function populateMap(reports) {
                     <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
-                    <td>${report.staus}</td>
+                    <td>${report.status}</td>
                     <td><button type="button" onClick="promptPasscode(${report.id}, 'delete')"><img src="images/x.png" alt="Remove"></button></td>
                 </tr>
             `;
@@ -137,6 +141,8 @@ function selectReport(id) {
     // Reset all markers
     unSelectMarkers();
 
+    // Show corrosponding details
+    showDetails(id);
     // Highlight corrosponding marker
     for (let marker of markers) {
         if (marker.id == id) {
@@ -144,9 +150,6 @@ function selectReport(id) {
             break;
         }
     } 
-
-    // Show corrosponding details
-    showDetails(id);
 }
 
 function removeReport(id) {
@@ -202,9 +205,9 @@ function showDetails(id) {
                 <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
                 <p><strong>Type:</strong> ${report.emtype}</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
-                <p><strong>Status:</strong> ${report.staus}</p>
-                <button onclick="promptPasscode(${report.id}, 'edit')">Edit</button>
+                <p><strong>Status:</strong> ${report.status}</p>
                 <button onclick="hideDetails()">Close</button>
+                <button onclick="promptPasscode(${report.id}, 'edit')">Edit</button>
             `;
             // Append details to the document
             document.body.appendChild(details);
