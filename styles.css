@@ -60,10 +60,6 @@ table.report_list th {
     text-align: left;
 }
 
-table.report_list td {
-
-}
-
 table.report_list td:last-child,
 table.report_list th:last-child {
     min-width: 60px;
@@ -106,7 +102,7 @@ div.details h3 {
     padding: 10px;
     color: white;
     background-color: rgb(214, 79, 79);
-    margin: 0;
+    margin: 0 0 10px 0;
     min-width: 300px;
 }
 
@@ -128,6 +124,19 @@ div.details button {
     padding: 10px 20px;
     margin: 10px 15px 0 12px;
     width: 75px;
+}
+
+div.details label {
+    display: inline-block;
+    padding: 10px;
+    width: 150px;
+}
+
+div.details input {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 5px 2px;
+    width: 300px;
 }
 
 /* Remove Report Popup */

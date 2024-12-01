@@ -256,8 +256,8 @@ function editDetails(report) {
                     <input type="url" id="empic" name="empic" value="${element.empic}"><br><br>
                     <label for="comment">Comment: </label>
                     <input type="text" id="comment" name="comment" value="${element.comment}"><br><br>
-                    <button onclick="saveDetails(${element.id})">Save</button>
                     <button onclick="showDetails(${element.id})">Cancel</button>
+                    <button onclick="saveDetails(${element.id})">Save</button>
                     `;
                     document.body.appendChild(details);
                 }

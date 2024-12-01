@@ -39,4 +39,36 @@ html, body {
 /* Form */
 form.report {
     background-color: blanchedalmond;
+    overflow-x: auto;
+}
+
+form.report fieldset {
+    border: none;
+    margin: 2px;
+}
+
+form.report label {
+    display: inline-block;
+    width: 150px
+}
+
+form.report input {
+    display: inline-block;
+    width: 300px;
+    padding: 5px 2px;
+}
+
+form.report button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+#addr-validation-msg {
+    display: inline-block;
+    padding: 5px 0;
+    width: 300px;
 }
