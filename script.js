@@ -93,7 +93,7 @@ function populateMap(reports) {
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
                     <td>${report.status}</td>
-                    <td><button type="button" onClick="promptPasscode(${report.id}, 'delete')"><img src="images/x.png" alt="Remove"></button></td>
+                    <td><button type="button" onClick="promptPasscode(${report.id}, 'delete')"><img src="images/x.png" alt="Remove" title= "Delete Report"></button></td>
                 </tr>
             `;
 
@@ -256,10 +256,17 @@ function editDetails(report) {
                     <input type="url" id="empic" name="empic" value="${element.empic}"><br><br>
                     <label for="comment">Comment: </label>
                     <input type="text" id="comment" name="comment" value="${element.comment}"><br><br>
+                    <label for="status">Status: </label>
+                    <select id="status" name="status" value = "${element.status}">
+                        <option value="OPEN">OPEN</option>
+                        <option value="RESOLVED">RESOLVED</option>
+                    </select><br><br>
                     <button onclick="showDetails(${element.id})">Cancel</button>
                     <button onclick="saveDetails(${element.id})">Save</button>
-                    `;
+                    `; 
                     document.body.appendChild(details);
+                    let opt = document.querySelector(`.details select[id="status"] option[value="${element.status}"]`);
+                    opt.selected = true;
                 }
             }
         }    
@@ -284,6 +291,7 @@ function saveDetails(report){
             element.longitude = document.getElementById('longitude').value;
             element.empic = document.getElementById('empic').value;
             element.comment = document.getElementById('comment').value;
+            element.status = document.getElementById('status').value;
         }
     }
 
