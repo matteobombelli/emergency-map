@@ -313,7 +313,6 @@ async function hashValue(valueToHash) {
     try{
         const response = await fetch(url);
         const data = await response.json();
-        console.log(data.Digest);
 
         if (data.Digest == PASSCODE) {
             return true;
@@ -367,15 +366,14 @@ function promptPasscode(report, type){
     enterButton.addEventListener('click', async () => {
         // Check if the passcode is correct
         try{
-            console.log("passcode: " + document.getElementById('passcode').value);
-        const passcodeInput = await hashValue(document.getElementById('passcode').value);
+            const passcodeInput = await hashValue(document.getElementById('passcode').value);
     
         if (passcodeInput == true) {
             if (type == 'edit') {
                 overlay.remove();
                 popup.remove();
                 editDetails(report);
-            } else if (type == 'delete') {
+            } else if (type == 'delete') {`             `
                 overlay.remove();
                 popup.remove();
                 removeReport(report.id);
@@ -393,8 +391,6 @@ function promptPasscode(report, type){
             alert("An error occurred. Please try again.");
         }
         
-
-        
     });
     popup.appendChild(closeButton);
     popup.appendChild(enterButton);
@@ -402,4 +398,3 @@ function promptPasscode(report, type){
     document.body.appendChild(overlay);
     document.body.appendChild(popup);
 }
-
