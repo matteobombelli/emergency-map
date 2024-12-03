@@ -72,6 +72,7 @@ function initializeReport() {
     // Add validation to address field
     const addrField = document.getElementById('addr');
     const validationMsg = document.getElementById('addr-validation-msg');
+    const phoneField = document.getElementById('telnum');
 
     addrField.addEventListener('blur', async () => {
         const address = addrField.value.trim();
@@ -108,6 +109,13 @@ function initializeReport() {
             alert("Please provide a valid address before submitting.");
             return;
         }
+        const phoneValue = phoneField.value.trim();
+        const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+
+        if (!phoneRegex.test(phoneValue)) {
+            alert("Please enter a valid phone number in the format 123-456-7890.");
+            return;
+        }
 
         const fd = new FormData(report_form);
         const obj = Object.fromEntries(fd);
@@ -127,6 +135,8 @@ function initializeReport() {
         // Clear the form
         report_form.reset();
         validationMsg.textContent = ""; // Clear validation message
+
+        alert("Report saved successfully!");
     });
 }
 

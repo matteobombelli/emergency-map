@@ -41,37 +41,62 @@ html, body {
 
 /* Form */
 form.report {
-    background-color: blanchedalmond;
+    background-color: white;
+    max-width: 600px;
+    margin: 20px auto; /* Center the form */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
     overflow-x: auto;
 }
 
 form.report fieldset {
     border: none;
-    margin: 2px;
+    margin: 0;
+    padding: 0;
 }
 
 form.report label {
-    display: inline-block;
-    width: 150px
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
 form.report input {
-    display: inline-block;
-    width: 300px;
-    padding: 5px 2px;
+    display: block;
+    width: calc(100% - 12px); /* Full width with padding */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+form.report input:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 form.report button {
-    background-color: #007BFF;
+    width: 100%; /* Full-width button */
+    background-color: rgb(163, 50, 50);
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+form.report button:hover {
+    background-color: rgb(214, 79, 79);
 }
 
 #addr-validation-msg {
-    display: inline-block;
-    padding: 5px 0;
-    width: 300px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: block;
 }
