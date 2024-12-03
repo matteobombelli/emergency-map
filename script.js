@@ -202,10 +202,12 @@ function showDetails(id) {
             details.innerHTML = `
                 <h3>Report Details</h3>
                 <img class="reportImg" style="display: ${display};" src="${report.empic}"/>
-                <p><strong>Location:</strong> (${report.latitude}, ${report.longitude})</p>
                 <p><strong>Type:</strong> ${report.emtype}</p>
+                <p><strong>Location:</strong> ${report.addr}</p>
+                <p><strong>Reported by:</strong> ${report.fname} ${report.lname} (${report.telnum})</p>
                 <p><strong>Time Reported:</strong> ${new Date(report.date_time).toLocaleString()}</p>
                 <p><strong>Status:</strong> ${report.status}</p>
+                <p><strong>Comments:</strong> ${report.comment}</p>
                 <button onclick="hideDetails()">Close</button>
                 <button onclick="promptPasscode(${report.id}, 'edit')">Edit</button>
             `;
