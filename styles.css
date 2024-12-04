@@ -55,6 +55,7 @@ table.report_list {
 table.report_list tr {
     display: flex;
     justify-content: space-around;
+    text-align: left;
 }
 
 table.report_list, 
@@ -65,6 +66,7 @@ table.report_list td {
     padding: 10px;
     border-top: 1.5px solid black;
     border-bottom: 1.5px solid black;
+    text-align: left;
 }
 
 table.report_list th {

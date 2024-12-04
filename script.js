@@ -4,6 +4,7 @@ var markers = []; // Array of map markers
 var report_list; // Report list HTML element
 var details; // Details HTML element
 const PASSCODE = "21232f297a57a5a743894a0e4a801fc3";
+var current_sort = "Date";
 
 
 var marker_selected = L.icon({ // Selected marker appearance
@@ -52,7 +53,7 @@ function initializeHome() {
     let reports = storedData ? JSON.parse(storedData) : [];
 
     // Populate map with reports
-    populateMap(reports);
+    sortMap(current_sort);
 
     // Add event to only list reports that have markers visible on map
     map.on('moveend', updateReportList);
@@ -71,10 +72,10 @@ function populateMap(reports) {
     });
     report_list.innerHTML = `
     <tr>
-        <th>Location</th>
-        <th>Type</th>
-        <th>Time Reported</th>
-        <th>Status</th>
+        <th onclick="sortMap('Location')">Location</th>
+        <th onclick="sortMap('Type')">Type</th>
+        <th onclick="sortMap('Date')">Time Reported</th>
+        <th onclick="sortMap('Status')">Status</th>
         <th></th>
     </tr>
     `;
@@ -85,7 +86,7 @@ function populateMap(reports) {
         return;
     }
 
-    for (var report of reports) {
+    for (const report of reports) {
         report_list.innerHTML += `
         
                 <tr id="${report.id}"> 
@@ -113,6 +114,50 @@ function populateMap(reports) {
     updateReportList();
 }
 
+function sortMap(sort_protocol) {
+    // Retrieve reports from localStorage, initialize to empty array if none
+    var storedData = localStorage.getItem('reports');
+    let reports = storedData ? JSON.parse(storedData) : [];
+
+    // Sort reports according to the protocol
+    switch (sort_protocol) {
+        case "Location":
+            reports.sort((a, b) => b.latitude - a.latitude);
+            break;
+            
+        case "Type":
+            reports.sort((a, b) => {
+                if (a.emtype < b.emtype) return -1;
+                if (a.emtype > b.emtype) return 1;
+                return 0;
+            });
+            break;
+        
+        case "Date":
+            reports.sort((a, b) => a.date_time - b.date_time);
+            break;
+
+        case "Status":
+            reports.sort((a, b) => {
+                if (a.status == "OPEN" && b.status != "OPEN") return -1;
+                if (a.status == "IN_PROGRESS" && b.status == "RESOLVED") return -1;
+                if (a.status != "OPEN" && b.status == "OPEN") return 1;
+                if (a.status == "RESOLVED" && b.status == "IN_PROGRESS") return -1;
+                return 0;
+            });
+            break;
+
+        default:
+            console.error("Invalid sorting protocol for reports");
+            break;
+    }
+
+    // Update current sort
+    current_sort = sort_protocol;
+
+    populateMap(reports);
+}
+
 function updateReportList() {
     let bounds = map.getBounds();
     for (let marker of markers) {
@@ -136,6 +181,7 @@ function updateReportList() {
         child.addEventListener('click', () => selectReport(child.id));
     });
 }
+
 
 function selectReport(id) {
     // Reset all markers
@@ -163,7 +209,7 @@ function removeReport(id) {
     localStorage.setItem('reports', JSON.stringify(reports));
 
     // Repopulate map
-    populateMap(reports);
+    sortMap(current_sort);
 }
 
 function unSelectMarkers() {
@@ -225,7 +271,6 @@ function hideDetails() {
     details = null;
 }
 
-
 //edit the details of the report
 function editDetails(report) {
     // Load reports
@@ -261,6 +306,7 @@ function editDetails(report) {
                     <label for="status">Status: </label>
                     <select id="status" name="status" value = "${element.status}">
                         <option value="OPEN">OPEN</option>
+                        <option value="IN_PROGRESS">IN PROGRESS</option>
                         <option value="RESOLVED">RESOLVED</option>
                     </select><br><br>
                     <button onclick="showDetails(${element.id})">Cancel</button>
@@ -300,7 +346,7 @@ function saveDetails(report){
     // Save the updated reports, hide the details, repopulate map incase coords changed, and refresh the page
     localStorage.setItem('reports', JSON.stringify(reports));
     hideDetails();
-    populateMap(reports);
+    sortMap(current_sort);
     refreshPage();
 }
 
