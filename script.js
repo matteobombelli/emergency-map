@@ -58,8 +58,10 @@ function initializeHome() {
     map.on('moveend', updateReportList);
     // Add event to deselect markers when map is clicked
     map.on('click', () => {
-        unSelectMarkers();
-        hideDetails();
+        if(details){
+            unSelectMarkers();
+            hideDetails();
+        }
     });
 }
 
@@ -89,7 +91,7 @@ function populateMap(reports) {
         report_list.innerHTML += `
         
                 <tr id="${report.id}"> 
-                    <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
+                    <td>${report.addr} ${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
                     <td>${report.status}</td>
