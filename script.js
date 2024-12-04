@@ -5,7 +5,7 @@ var report_list; // Report list HTML element
 var details; // Details HTML element
 const PASSCODE = "21232f297a57a5a743894a0e4a801fc3";
 var current_sort = "Date";
-
+var sort_toggle = 1;
 
 var marker_selected = L.icon({ // Selected marker appearance
     iconUrl: 'images/red-marker.png',
@@ -121,30 +121,44 @@ function sortMap(sort_protocol) {
     var storedData = localStorage.getItem('reports');
     let reports = storedData ? JSON.parse(storedData) : [];
 
+    // Check for toggle
+    if (sort_protocol == current_sort) {
+        sort_toggle = sort_toggle * -1;
+    }
+
     // Sort reports according to the protocol
     switch (sort_protocol) {
         case "Location":
-            reports.sort((a, b) => b.latitude - a.latitude);
+            reports.sort((a, b) => {
+                if (b.latitude > a.latitude) return sort_toggle;
+                if (b.latitude < a.latitude) return -sort_toggle;
+                return 0;
+            });
+            
             break;
             
         case "Type":
             reports.sort((a, b) => {
-                if (a.emtype < b.emtype) return -1;
-                if (a.emtype > b.emtype) return 1;
+                if (a.emtype < b.emtype) return -sort_toggle;
+                if (a.emtype > b.emtype) return sort_toggle;
                 return 0;
             });
             break;
         
         case "Date":
-            reports.sort((a, b) => a.date_time - b.date_time);
+            reports.sort((a, b) => {
+                if (a.date_time > b.date_time) return sort_toggle;
+                if (a.date_time < b.date_time) return -sort_toggle;
+                return 0;
+            });
             break;
 
         case "Status":
             reports.sort((a, b) => {
-                if (a.status == "OPEN" && b.status != "OPEN") return -1;
-                if (a.status == "IN_PROGRESS" && b.status == "RESOLVED") return -1;
-                if (a.status != "OPEN" && b.status == "OPEN") return 1;
-                if (a.status == "RESOLVED" && b.status == "IN_PROGRESS") return -1;
+                if (a.status == "OPEN" && b.status != "OPEN") return -sort_toggle;
+                if (a.status == "IN_PROGRESS" && b.status == "RESOLVED") return -sort_toggle;
+                if (a.status != "OPEN" && b.status == "OPEN") return sort_toggle;
+                if (a.status == "RESOLVED" && b.status == "IN_PROGRESS") return -sort_toggle;
                 return 0;
             });
             break;
