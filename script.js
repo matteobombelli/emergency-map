@@ -59,8 +59,10 @@ function initializeHome() {
     map.on('moveend', updateReportList);
     // Add event to deselect markers when map is clicked
     map.on('click', () => {
-        unSelectMarkers();
-        hideDetails();
+        if(details){
+            unSelectMarkers();
+            hideDetails();
+        }
     });
 }
 
@@ -90,7 +92,7 @@ function populateMap(reports) {
         report_list.innerHTML += `
         
                 <tr id="${report.id}"> 
-                    <td>${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
+                    <td>${report.addr} ${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
                     <td>${report.emtype}</td>
                     <td>${new Date(report.date_time).toDateString()}</td>
                     <td>${report.status}</td>
@@ -390,7 +392,12 @@ function promptPasscode(report, type){
     popup.id = 'dynamic-popup';
     // Add content to the popup
     const title = document.createElement('h2');
-    title.textContent = `Enter passcode`;
+    if(type == 'delete'){
+        title.textContent = `You are about to delete this report. Enter Passcode to confirm:`;
+    }
+    else{
+        title.textContent += `Enter Passcode: `
+    }
     popup.appendChild(title);
     
     const description = document.createElement('div');
