@@ -346,7 +346,12 @@ function promptPasscode(report, type){
     popup.id = 'dynamic-popup';
     // Add content to the popup
     const title = document.createElement('h2');
-    title.textContent = `Enter passcode`;
+    if(type == 'delete'){
+        title.textContent = `You are about to delete this report. Enter Passcode to confirm:`;
+    }
+    else{
+        title.textContent += `Enter Passcode: `
+    }
     popup.appendChild(title);
     
     const description = document.createElement('div');
