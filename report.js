@@ -2,7 +2,7 @@ class report {   // Report object
     constructor() {
         const time = new Date()
         this.id = newId();
-        this.date_time = time.toLocaleString('en-US', { timeZone: 'UTC' });
+        this.date_time = time.toLocaleString('en-US', { timeZone: 'PST' });
         this.status = "OPEN";
 
         function newId() {

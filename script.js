@@ -94,7 +94,7 @@ function populateMap(reports) {
                 <tr id="${report.id}"> 
                     <td>${report.addr} ${report.latitude && report.longitude ? `(${report.latitude}, ${report.longitude})` : 'N/A'}</td>
                     <td>${report.emtype}</td>
-                    <td>${new Date(report.date_time).toDateString()}</td>
+                    <td>${new Date(report.date_time).toLocaleString()}</td>
                     <td>${report.status}</td>
                     <td><button type="button" onClick="promptPasscode(${report.id}, 'delete')"><img src="images/x.png" alt="Remove" title= "Delete Report"></button></td>
                 </tr>
