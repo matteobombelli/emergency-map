@@ -74,10 +74,10 @@ function populateMap(reports) {
     });
     report_list.innerHTML = `
     <tr>
-        <th onclick="sortMap('Location')">Location</th>
-        <th onclick="sortMap('Type')">Type</th>
-        <th onclick="sortMap('Date')">Time Reported</th>
-        <th onclick="sortMap('Status')">Status</th>
+        <th onclick="sortMap('Location')">Location ⇅</th>
+        <th onclick="sortMap('Type')">Type ⇅</th>
+        <th onclick="sortMap('Date')">Time Reported ⇅</th>
+        <th onclick="sortMap('Status')">Status ⇅</th>
         <th></th>
     </tr>
     `;
