@@ -1,6 +1,6 @@
 # emergency-map
 
-View the project [here](https://matteobombelli.github.io/emergency-map/index.html "View emergency-map on Github Pages")
+View the project [here](https://matteobombelli.github.io/emergency-map/index.html "View emergency-map on Github Pages")  
 Password: admin
 
 # Overview
